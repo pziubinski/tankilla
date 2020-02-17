@@ -1,5 +1,5 @@
-package com.tankilla.Model;
+package com.tankilla.model;
 
 public enum GameState {
-    RUNNING, FINISHED, STARTED;
+    RUNNING, FINISHED, STARTED, BULLET_FIRED;
 }

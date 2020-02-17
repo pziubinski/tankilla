@@ -1,6 +1,6 @@
-package com.tankilla.Main;
+package com.tankilla.main;
 
-import com.tankilla.Controller.Controller;
+import com.tankilla.controller.Controller;
 import javafx.application.Application;
 import javafx.stage.Stage;
 

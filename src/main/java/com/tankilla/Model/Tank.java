@@ -1,4 +1,4 @@
-package com.tankilla.Model;
+package com.tankilla.model;
 
 public class Tank {
 
@@ -9,6 +9,7 @@ public class Tank {
     private String team;
     private int positionX;
     private int positionY;
+    private int barrelMovement;
     private int barrelAngle;
 
     public Tank(int power, String team, int positionX, int positionY, int barrelAngle) {
@@ -31,20 +32,21 @@ public class Tank {
         return positionY;
     }
 
-    public void setPositionY(int positionY) {
-        this.positionY += positionY;
+    public int getBarrelMovement() {
+        return barrelMovement;
+    }
+
+    public void setBarrelMovement(int barrelMovement) {
+        this.barrelMovement = barrelMovement;
+        this.barrelAngle += barrelMovement;
     }
 
     public int getBarrelAngle() { return barrelAngle; }
 
     public void setBarrelAngle(int barrelAngle) {
 
-        this.barrelAngle = barrelAngle;
 
-        if(this.barrelAngle > 360)
-            this.barrelAngle -= 360;
-
-        if(this.barrelAngle < 0)
-            this.barrelAngle += 360;
     }
+
+
 }
