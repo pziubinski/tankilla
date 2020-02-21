@@ -2,37 +2,37 @@ package com.tankilla.model;
 
 public class Bullet {
 
-    private int positionX;
-    private int positionY;
-    private int bulletAngle;
+    private double positionX;
+    private double positionY;
+    private double bulletAngle;
 
-    public Bullet(int positionX, int positionY, int bulletAngle) {
+    public Bullet(double positionX, double positionY, double bulletAngle) {
         this.positionX = positionX;
         this.positionY = positionY;
         this.bulletAngle = bulletAngle;
     }
 
-    public int getPositionX() {
+    public double getPositionX() {
         return positionX;
     }
 
-    public void setPositionX(int positionX) {
+    public void setPositionX(double positionX) {
         this.positionX = positionX;
     }
 
-    public int getPositionY() {
+    public double getPositionY() {
         return positionY;
     }
 
-    public void setPositionY(int positionY) {
+    public void setPositionY(double positionY) {
         this.positionY = positionY;
     }
 
-    public int getBulletAngle() {
+    public double getBulletAngle() {
         return bulletAngle;
     }
 
-    public void setBulletAngle(int bulletAngle) {
+    public void setBulletAngle(double bulletAngle) {
         this.bulletAngle = bulletAngle;
     }
 }

@@ -18,16 +18,11 @@ public class Controller {
     private int dy;
     private boolean firstPlayerTurn;
     private long lastNanoTime = System.nanoTime();
-    private double t;
 
     private Tank redTank;
     private Tank greenTank;
     private MainView view;
     private Bullet bullet;
-
-    public static boolean isBulletWasFired() {
-        return bulletWasFired;
-    }
 
     public Controller() {
         state = GameState.STARTED;
@@ -35,6 +30,8 @@ public class Controller {
         view = new MainView();
         redTank = view.getRedTank();
         greenTank = view.getGreenTank();
+        greenTank.setBarrelAngle(180);
+
         bullet = view.getBullet();
         keyActive = true;
         resume();
@@ -45,7 +42,7 @@ public class Controller {
             @Override
             public void handle(long now) {
                 // first or second player turn
-                if(now > lastNanoTime + 25000000000L) {
+                if(now > lastNanoTime + 5000000000L) {
                     firstPlayerTurn ^= true;
                     lastNanoTime = now;
                 }
@@ -104,25 +101,38 @@ public class Controller {
         }.start(); // starting the timer
     }
 
+    private double inRadians;
+    private long timer;
+
     private void fire(Tank tank) {
         if(bulletWasFired) {
-            bullet.setPositionX(tank.getPositionX());
-            bullet.setPositionY(tank.getPositionY());
-            bullet.setBulletAngle(tank.getBarrelAngle());
-            System.out.println(tank.getBarrelAngle());
-            t = 0;
+            inRadians = Math.toRadians(tank.getBarrelAngle());
+            bullet.setPositionX(tank.getPositionX()+80);
+            bullet.setPositionY(tank.getPositionY()+20);
+            bullet.setBulletAngle(inRadians);
+            System.out.println(inRadians);
+
+            timer = System.currentTimeMillis();
+            System.out.format("a: %.2f, sin(a): %.2f, cos(a): %.2f\n", inRadians, Math.sin(inRadians), Math.cos(inRadians));
+
             bulletWasFired = false;
         }
-        System.out.println("bullet position: " + bullet.getPositionX() + ", " + bullet.getPositionY() + ", angle: " + bullet.getBulletAngle() + ", " + Math.sin(-tank.getBarrelAngle()) + ", t: " + t);
 
-        if(bullet.getPositionY() < 680 && bullet.getPositionY() > 200) {
+        long tick = timer;
 
-            bullet.setPositionX( (int) (bullet.getPositionX() + Math.cos(-tank.getBarrelAngle()) - 1/t) );
-            bullet.setPositionY( (int) (bullet.getPositionY() + Math.sin(-tank.getBarrelAngle()) -10/t) );
-            t++;
-            System.out.println("bullet position: " + bullet.getPositionX() + ", " + bullet.getPositionY() + ", angle: " + bullet.getBulletAngle() + ", " + Math.sin(-tank.getBarrelAngle()) + ", t: " + t);
+        if(bullet.getPositionY() < 670 && bullet.getPositionY() > 0 && bullet.getPositionX() > 0 && bullet.getPositionX() < 1600) {
+            tick = System.currentTimeMillis();
+            long time = (tick - timer)/70;
 
-        } else {
+            inRadians = Math.toRadians(tank.getBarrelAngle());
+
+            bullet.setPositionX( bullet.getPositionX() + 2 * time * Math.cos(inRadians) );
+            bullet.setPositionY( bullet.getPositionY() + time * Math.sin(inRadians) * 2 + (time * time)/10 );
+
+            System.out.format("bX: %.2f, bY: %.2f, time: %s, %s, %s\n", bullet.getPositionX(), bullet.getPositionY(), timer, tick, time);
+        }
+        else
+        {
             System.out.println("done!");
             state = GameState.RUNNING;
         }

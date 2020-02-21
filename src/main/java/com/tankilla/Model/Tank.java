@@ -7,12 +7,12 @@ public class Tank {
 
     private int power;
     private String team;
-    private int positionX;
-    private int positionY;
-    private int barrelMovement;
-    private int barrelAngle;
+    private double positionX;
+    private double positionY;
+    private double barrelMovement;
+    private double barrelAngle;
 
-    public Tank(int power, String team, int positionX, int positionY, int barrelAngle) {
+    public Tank(int power, String team, double positionX, double positionY, double barrelAngle) {
         this.power = power;
         this.team = team;
         this.positionX = positionX;
@@ -20,30 +20,30 @@ public class Tank {
         this.barrelAngle = barrelAngle;
     }
 
-    public int getPositionX() {
+    public double getPositionX() {
         return positionX;
     }
 
-    public void setPositionX(int positionX) {
+    public void setPositionX(double positionX) {
         this.positionX += positionX;
     }
 
-    public int getPositionY() {
+    public double getPositionY() {
         return positionY;
     }
 
-    public int getBarrelMovement() {
+    public double getBarrelMovement() {
         return barrelMovement;
     }
 
-    public void setBarrelMovement(int barrelMovement) {
+    public void setBarrelMovement(double barrelMovement) {
         this.barrelMovement = barrelMovement;
         this.barrelAngle += barrelMovement;
     }
 
-    public int getBarrelAngle() { return barrelAngle; }
+    public double getBarrelAngle() { return barrelAngle; }
 
-    public void setBarrelAngle(int barrelAngle) {
+    public void setBarrelAngle(double barrelAngle) {
 
 
     }

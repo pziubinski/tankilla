@@ -50,10 +50,8 @@ public class MainView {
     private GridPane grid;
     private StackPane stack;
     private Bullet bullet;
-    //private Controller controller;
 
     public MainView() {
-        //controller = new Controller();
         board = new Board();
         redTank = board.getRedTank();
         greenTank = board.getGreenTank();
@@ -107,44 +105,45 @@ public class MainView {
         stage.setScene(scene);
     }
 
-    private void whenRunning() {
-        grid.getChildren().clear(); // clear grid
-        canvas.getChildren().clear(); // clear canvas
+    Rotate redBarrelRotation;
+    Rotate greenBarrelRotation;
 
-        // game background
-        canvas.getChildren().add(backgroundImageView);
+    private void whenRunning() {
+        setupAndBackground();
 
         // tank movement
         redTankImageView.relocate(redTank.getPositionX(), redTank.getPositionY());
         redBarrelImageView.relocate(redTank.getPositionX()+redBarrelImage.getWidth(), redTank.getPositionY()+10);
 
+        redBarrelRotation = new Rotate();
         // rotation of barrel
-        Rotate rotation = new Rotate();
-        rotation.setAngle(redTank.getBarrelMovement());
-        rotation.setPivotY(redBarrelImage.getHeight()/2);
-        redBarrelImageView.getTransforms().add(rotation);
+        redBarrelRotation.setAngle(redTank.getBarrelMovement());
+        redBarrelRotation.setPivotY(redBarrelImage.getHeight()/2);
+        redBarrelImageView.getTransforms().add(redBarrelRotation);
 
         // add to canvas
         canvas.getChildren().addAll(redBarrelImageView, redTankImageView);
 
+
+        // tank movement
         greenTankImageView.relocate(greenTank.getPositionX(), greenTank.getPositionY());
-        canvas.getChildren().add(greenTankImageView);
+        greenBarrelImageView.relocate(greenTank.getPositionX()+greenBarrelImage.getWidth(), greenTank.getPositionY()+10);
 
-        grid.add(stack, 0, 1);
-        grid.add(canvas, 0, 0);
+        greenBarrelRotation = new Rotate();
+        // rotation of barrel
+        greenBarrelRotation.setAngle(greenTank.getBarrelMovement());
+        greenBarrelRotation.setPivotY(greenBarrelImage.getHeight()/2);
+        greenBarrelImageView.getTransforms().add(greenBarrelRotation);
 
-        scene.setRoot(grid);
-        stage.setScene(scene);
+        // add to canvas
+        canvas.getChildren().addAll(greenBarrelImageView, greenTankImageView);
+
+        gridAndSceneAndStageSetup();
     }
 
     private void whenBulletFired() {
-        grid.getChildren().clear(); // clear grid
-        canvas.getChildren().clear(); // clear canvas
+        setupAndBackground();
 
-        // game background
-        canvas.getChildren().add(backgroundImageView);
-
-        /*
         // tank movement
         redTankImageView.relocate(redTank.getPositionX(), redTank.getPositionY());
         redBarrelImageView.relocate(redTank.getPositionX()+redBarrelImage.getWidth(), redTank.getPositionY()+10);
@@ -157,11 +156,20 @@ public class MainView {
 
         // add to canvas
         canvas.getChildren().addAll(redBarrelImageView, redTankImageView);
-        */
 
         bulletImageView.relocate(bullet.getPositionX(), bullet.getPositionY());
         canvas.getChildren().add(bulletImageView);
 
+        gridAndSceneAndStageSetup();
+    }
+
+    private void setupAndBackground() {
+        grid.getChildren().clear(); // clear grid
+        canvas.getChildren().clear(); // clear canvas
+        canvas.getChildren().add(backgroundImageView);
+    }
+
+    private void gridAndSceneAndStageSetup() {
         grid.add(stack, 0, 1);
         grid.add(canvas, 0, 0);
 
