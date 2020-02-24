@@ -8,8 +8,8 @@ public class Board {
     private Bullet bullet;
 
     public Board() {
-        redTank = new Tank(100, "red", 200.0, 597, 0);
-        greenTank = new Tank(100, "green", 1200, 597, -180);
+        redTank = new Tank(100,200.0, 597, 0);
+        greenTank = new Tank(100,1200, 597, 0);
         bullet = new Bullet(0, 0, 0);
         state = GameState.STARTED;
     }

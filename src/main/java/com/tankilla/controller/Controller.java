@@ -11,13 +11,14 @@ import javafx.stage.Stage;
 public class Controller {
 
     private static GameState state;
-    private boolean barrelUp, barrelDown, right, left, resume, start, pause;
+    private boolean barrelUp, barrelDown, right, left, resume;
     private static boolean bulletWasFired;
     private boolean keyActive;
     private int dx;
     private int dy;
-    private boolean firstPlayerTurn;
-    private long lastNanoTime = System.nanoTime();
+    private double inRadians;
+    private long timer;
+    private static String whoWins;
 
     private Tank redTank;
     private Tank greenTank;
@@ -26,14 +27,12 @@ public class Controller {
 
     public Controller() {
         state = GameState.STARTED;
-        firstPlayerTurn = true;
         view = new MainView();
         redTank = view.getRedTank();
         greenTank = view.getGreenTank();
-        greenTank.setBarrelAngle(180);
-
         bullet = view.getBullet();
         keyActive = true;
+
         resume();
     }
 
@@ -41,12 +40,6 @@ public class Controller {
         new AnimationTimer(){
             @Override
             public void handle(long now) {
-                // first or second player turn
-                if(now > lastNanoTime + 5000000000L) {
-                    firstPlayerTurn ^= true;
-                    lastNanoTime = now;
-                }
-
                 dx = dy = 0;
                 redTank.setBarrelMovement(dy);
                 greenTank.setBarrelMovement(dy);
@@ -58,40 +51,28 @@ public class Controller {
                 if(left) dx = -1;
                 if(right) dx = 1;
 
-                // when game resumed
-                if(resume && !pause) {
-                    state = GameState.RUNNING;
-                    resume = false;
-                }
-
-                // when game started or restarted
-                if(start && (state == GameState.FINISHED || state == GameState.STARTED)) {
-                    restart();
-                    start = false;
-                }
-
                 // when game finished
                 if(state == GameState.FINISHED) {
-                    stop();
+                    restart();
                 }
 
                 // when game is running, make movement
-                if(firstPlayerTurn && state == GameState.RUNNING) {
+                if(state == GameState.RED_PLAYER_TURN) {
                     move(redTank, dx, dy);
                     keyActive = true;
                 }
-                if(!firstPlayerTurn && state == GameState.RUNNING) {
+                if(state == GameState.GREEN_PLAYER_TURN) {
                     move(greenTank, dx, dy);
                     keyActive = true;
                 }
 
                 // when player fired a bullet
-                if(firstPlayerTurn && state == GameState.BULLET_FIRED) {
-                    fire(redTank);
+                if(state == GameState.RED_BULLET_FIRED) {
+                    fire(redTank, now);
                     keyActive = true;
                 }
-                if(!firstPlayerTurn && state == GameState.BULLET_FIRED) {
-                    fire(greenTank);
+                if(state == GameState.GREEN_BULLET_FIRED) {
+                    fire(greenTank, now);
                     keyActive = true;
                 }
 
@@ -101,40 +82,66 @@ public class Controller {
         }.start(); // starting the timer
     }
 
-    private double inRadians;
-    private long timer;
-
-    private void fire(Tank tank) {
+    private void fire(Tank tank, long now) {
         if(bulletWasFired) {
             inRadians = Math.toRadians(tank.getBarrelAngle());
-            bullet.setPositionX(tank.getPositionX()+80);
-            bullet.setPositionY(tank.getPositionY()+20);
+            bullet.setPositionX(tank.getPositionX()+68 + Math.cos(inRadians)*70);
+            bullet.setPositionY(tank.getPositionY()+12 + Math.sin(inRadians)*70);
             bullet.setBulletAngle(inRadians);
-            System.out.println(inRadians);
 
             timer = System.currentTimeMillis();
-            System.out.format("a: %.2f, sin(a): %.2f, cos(a): %.2f\n", inRadians, Math.sin(inRadians), Math.cos(inRadians));
-
             bulletWasFired = false;
         }
 
-        long tick = timer;
+        long tick;// = timer;
 
         if(bullet.getPositionY() < 670 && bullet.getPositionY() > 0 && bullet.getPositionX() > 0 && bullet.getPositionX() < 1600) {
             tick = System.currentTimeMillis();
             long time = (tick - timer)/70;
-
             inRadians = Math.toRadians(tank.getBarrelAngle());
-
             bullet.setPositionX( bullet.getPositionX() + 2 * time * Math.cos(inRadians) );
             bullet.setPositionY( bullet.getPositionY() + time * Math.sin(inRadians) * 2 + (time * time)/10 );
-
-            System.out.format("bX: %.2f, bY: %.2f, time: %s, %s, %s\n", bullet.getPositionX(), bullet.getPositionY(), timer, tick, time);
         }
         else
         {
             System.out.println("done!");
-            state = GameState.RUNNING;
+            if(state == GameState.GREEN_BULLET_FIRED) {
+                double xdiff = (bullet.getPositionX() - redTank.getPositionX()) * (bullet.getPositionX() - redTank.getPositionX());
+                double ydiff = (bullet.getPositionY() - redTank.getPositionY()) * (bullet.getPositionY() - redTank.getPositionY());
+                double distance = Math.sqrt(xdiff + ydiff);
+                double decreasePower = 100 - 0.2 * distance;
+
+                if(decreasePower > 0)
+                    redTank.setPower(redTank.getPower() - (int) decreasePower);
+
+                if(redTank.getPower() <= 0) {
+                    whoWins = "GREEN PLAYER WIN THIS BATTLE!";
+                    state = GameState.FINISHED;
+                }
+                else {
+                    System.out.println("red power: " + redTank.getPower());
+                    state = GameState.RED_PLAYER_TURN;
+                }
+            }
+
+            if(state == GameState.RED_BULLET_FIRED) {
+                double xdiff = (bullet.getPositionX() - greenTank.getPositionX()) * (bullet.getPositionX() - greenTank.getPositionX());
+                double ydiff = (bullet.getPositionY() - greenTank.getPositionY()) * (bullet.getPositionY() - greenTank.getPositionY());
+                double distance = Math.sqrt(xdiff + ydiff);
+                double decreasePower = 100 - 0.2 * distance;
+
+                if(decreasePower > 0)
+                    greenTank.setPower(greenTank.getPower() - (int) decreasePower);
+
+                if(greenTank.getPower() <= 0) {
+                    whoWins = "RED PLAYER WIN THIS BATTLE!";
+                    state = GameState.FINISHED;
+                }
+                else {
+                    System.out.println("green power: " + greenTank.getPower());
+                    state = GameState.GREEN_PLAYER_TURN;
+                }
+            }
         }
     }
 
@@ -150,44 +157,48 @@ public class Controller {
         scene.setOnKeyPressed(e -> {
             switch(e.getCode()) {
                 case UP:
-                    if(keyActive && state == GameState.RUNNING) {
+                    if(keyActive && state == GameState.RED_PLAYER_TURN || state == GameState.GREEN_PLAYER_TURN) {
                         barrelUp = true;
                         keyActive = false;
                     }
                     break;
                 case DOWN:
-                    if(keyActive && state == GameState.RUNNING) {
+                    if(keyActive && state == GameState.RED_PLAYER_TURN || state == GameState.GREEN_PLAYER_TURN) {
                         barrelDown = true;
                         keyActive = false;
                     }
                     break;
                 case LEFT:
-                    if(keyActive && state == GameState.RUNNING) {
+                    if(keyActive && state == GameState.RED_PLAYER_TURN || state == GameState.GREEN_PLAYER_TURN) {
                         left = true;
                         keyActive = false;
                     }
                     break;
                 case RIGHT:
-                    if(keyActive && state == GameState.RUNNING) {
+                    if(keyActive && state == GameState.RED_PLAYER_TURN || state == GameState.GREEN_PLAYER_TURN) {
                         right = true;
                         keyActive = false;
                     }
                     break;
                 case SPACE: {
-                    if (keyActive && state == GameState.RUNNING) {
-                        state = GameState.BULLET_FIRED;
+                    if (keyActive && state == GameState.RED_PLAYER_TURN) {
+                        state = GameState.RED_BULLET_FIRED;
                         bulletWasFired = true;
                         keyActive = false;
-                        }
                     }
+                    else if (keyActive && state == GameState.GREEN_PLAYER_TURN) {
+                        state = GameState.GREEN_BULLET_FIRED;
+                        bulletWasFired = true;
+                        keyActive = false;
+                    }
+                }
                     break;
-
-                case ENTER:{ // start or restart the game
-                    if(state == GameState.STARTED)
-                        start = true;
+                case ENTER: { // start or restart the game
+                    if(state == GameState.STARTED) {
+                        state = GameState.RED_PLAYER_TURN;
+                    }
                     if(state == GameState.FINISHED) {
-                        start = true;
-                        resume();
+                        state = GameState.STARTED;
                     }
                 }
                     break;
@@ -210,13 +221,17 @@ public class Controller {
     }
 
     private void restart() {
-        state = GameState.RUNNING;
         dx = dy = 0;
         barrelUp = barrelDown = left = right = false;
+        redTank.setPower(100);
+        greenTank.setPower(100);
     }
 
     public static GameState getState() { return state; }
 
     public Stage getStage() { return view.getStage(); }
+
+    public static String getWinner() { return whoWins; }
+
 
 }

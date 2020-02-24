@@ -1,6 +1,6 @@
 package com.tankilla.model;
 
-public class Bullet {
+public class Bullet implements Iposition{
 
     private double positionX;
     private double positionY;

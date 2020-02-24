@@ -40,6 +40,9 @@ public class MainView {
     private Image bulletImage = new Image("file:src/main/resources/bullet.png");
     private ImageView bulletImageView = new ImageView(bulletImage);
 
+    private Rotate redBarrelRotation;
+    private Rotate greenBarrelRotation;
+
     private Tank redTank;
     private Tank greenTank;
     private Scene scene;
@@ -55,6 +58,7 @@ public class MainView {
         board = new Board();
         redTank = board.getRedTank();
         greenTank = board.getGreenTank();
+
         bullet = board.getBullet();
 
         stage = new Stage();
@@ -74,22 +78,93 @@ public class MainView {
 
     public void render() {
         GameState state = Controller.getState();
+
         switch(state) {
             case STARTED:
                 whenStarted();
                 break;
-            case RUNNING:
-                whenRunning();
-                break;
             case FINISHED:
                 whenFinished();
                 break;
-            case BULLET_FIRED:
+            case RED_PLAYER_TURN:
+                whenRunning();
+                break;
+            case GREEN_PLAYER_TURN:
+                whenRunning();
+                break;
+            case RED_BULLET_FIRED:
+                whenBulletFired();
+                break;
+            case GREEN_BULLET_FIRED:
                 whenBulletFired();
                 break;
             default:
                 break;
         }
+    }
+
+    private void whenRunning() {
+        setupAndBackground();
+        statistics();
+
+        tankAndGridAndSceneAndStageSetup();
+    }
+
+    private void statistics() {
+        Text redTankPowerText = new Text(30, 50, Integer.toString(redTank.getPower()));
+        redTankPowerText.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.ITALIC, 36));
+        redTankPowerText.setFill(Color.DARKRED);
+
+        Text greenTankPowerText = new Text(WIDTH - 120, 50, Integer.toString(greenTank.getPower()));
+        greenTankPowerText.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.ITALIC, 36));
+        greenTankPowerText.setFill(Color.GREEN);
+
+        canvas.getChildren().addAll(redTankPowerText, greenTankPowerText);
+    }
+
+    private void whenBulletFired() {
+        setupAndBackground();
+        statistics();
+
+        bulletImageView.relocate(bullet.getPositionX(), bullet.getPositionY());
+        canvas.getChildren().add(bulletImageView);
+
+        tankAndGridAndSceneAndStageSetup();
+    }
+
+    private void setupAndBackground() {
+        grid.getChildren().clear(); // clear grid
+        canvas.getChildren().clear(); // clear canvas
+        canvas.getChildren().add(backgroundImageView);
+    }
+
+    private void tankAndGridAndSceneAndStageSetup() {
+        redBarrelRotation = new Rotate();
+        greenBarrelRotation = new Rotate();
+
+        redTankImageView.relocate(redTank.getPositionX(), redTank.getPositionY());
+        redBarrelImageView.relocate(redTank.getPositionX()+redBarrelImage.getWidth(), redTank.getPositionY()+10);
+
+        redBarrelRotation.setAngle(redTank.getBarrelMovement());
+        redBarrelRotation.setPivotY(redBarrelImage.getHeight()/2);
+        redBarrelImageView.getTransforms().add(redBarrelRotation);
+
+        canvas.getChildren().addAll(redBarrelImageView, redTankImageView);
+
+        greenTankImageView.relocate(greenTank.getPositionX(), greenTank.getPositionY());
+        greenBarrelImageView.relocate(greenTank.getPositionX()+greenBarrelImage.getWidth(), greenTank.getPositionY()+10);
+
+        greenBarrelRotation.setAngle(greenTank.getBarrelMovement());
+        greenBarrelRotation.setPivotY(greenBarrelImage.getHeight()/2);
+        greenBarrelImageView.getTransforms().add(greenBarrelRotation);
+
+        canvas.getChildren().addAll(greenBarrelImageView, greenTankImageView);
+
+        grid.add(stack, 0, 1);
+        grid.add(canvas, 0, 0);
+
+        scene.setRoot(grid);
+        stage.setScene(scene);
     }
 
     private void whenStarted() {
@@ -105,80 +180,20 @@ public class MainView {
         stage.setScene(scene);
     }
 
-    Rotate redBarrelRotation;
-    Rotate greenBarrelRotation;
-
-    private void whenRunning() {
-        setupAndBackground();
-
-        // tank movement
-        redTankImageView.relocate(redTank.getPositionX(), redTank.getPositionY());
-        redBarrelImageView.relocate(redTank.getPositionX()+redBarrelImage.getWidth(), redTank.getPositionY()+10);
-
-        redBarrelRotation = new Rotate();
-        // rotation of barrel
-        redBarrelRotation.setAngle(redTank.getBarrelMovement());
-        redBarrelRotation.setPivotY(redBarrelImage.getHeight()/2);
-        redBarrelImageView.getTransforms().add(redBarrelRotation);
-
-        // add to canvas
-        canvas.getChildren().addAll(redBarrelImageView, redTankImageView);
-
-
-        // tank movement
-        greenTankImageView.relocate(greenTank.getPositionX(), greenTank.getPositionY());
-        greenBarrelImageView.relocate(greenTank.getPositionX()+greenBarrelImage.getWidth(), greenTank.getPositionY()+10);
-
-        greenBarrelRotation = new Rotate();
-        // rotation of barrel
-        greenBarrelRotation.setAngle(greenTank.getBarrelMovement());
-        greenBarrelRotation.setPivotY(greenBarrelImage.getHeight()/2);
-        greenBarrelImageView.getTransforms().add(greenBarrelRotation);
-
-        // add to canvas
-        canvas.getChildren().addAll(greenBarrelImageView, greenTankImageView);
-
-        gridAndSceneAndStageSetup();
-    }
-
-    private void whenBulletFired() {
-        setupAndBackground();
-
-        // tank movement
-        redTankImageView.relocate(redTank.getPositionX(), redTank.getPositionY());
-        redBarrelImageView.relocate(redTank.getPositionX()+redBarrelImage.getWidth(), redTank.getPositionY()+10);
-
-        // rotation of barrel
-        Rotate rotation = new Rotate();
-        rotation.setAngle(redTank.getBarrelMovement());
-        rotation.setPivotY(redBarrelImage.getHeight()/2);
-        redBarrelImageView.getTransforms().add(rotation);
-
-        // add to canvas
-        canvas.getChildren().addAll(redBarrelImageView, redTankImageView);
-
-        bulletImageView.relocate(bullet.getPositionX(), bullet.getPositionY());
-        canvas.getChildren().add(bulletImageView);
-
-        gridAndSceneAndStageSetup();
-    }
-
-    private void setupAndBackground() {
-        grid.getChildren().clear(); // clear grid
-        canvas.getChildren().clear(); // clear canvas
-        canvas.getChildren().add(backgroundImageView);
-    }
-
-    private void gridAndSceneAndStageSetup() {
-        grid.add(stack, 0, 1);
-        grid.add(canvas, 0, 0);
-
-        scene.setRoot(grid);
-        stage.setScene(scene);
-    }
-
     private void whenFinished() {
+        group = new Group();
 
+        String whenFinishedString = Controller.getWinner();
+
+        Text largeText = new Text(WIDTH/2.0 - 130, HEIGHT/2.0 - 40, "GAME OVER");
+        largeText.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.ITALIC, 50));
+        largeText.setFill(Color.INDIANRED);
+        Text smallText = new Text(WIDTH/2.0 - 130, HEIGHT/2.0 + 20 , whenFinishedString);
+        smallText.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.ITALIC, 25));
+        smallText.setFill(Color.DARKGREEN);
+        group.getChildren().addAll(smallText, largeText);
+        scene.setRoot(group);
+        stage.setScene(scene);
     }
 
     public Scene getScene() { return stage.getScene(); }
