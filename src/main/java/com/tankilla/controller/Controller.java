@@ -51,12 +51,10 @@ public class Controller {
                 if(left) dx = -1;
                 if(right) dx = 1;
 
-                // when game finished
                 if(state == GameState.FINISHED) {
                     restart();
                 }
 
-                // when game is running, make movement
                 if(state == GameState.RED_PLAYER_TURN) {
                     move(redTank, dx, dy);
                     keyActive = true;
@@ -66,34 +64,32 @@ public class Controller {
                     keyActive = true;
                 }
 
-                // when player fired a bullet
                 if(state == GameState.RED_BULLET_FIRED) {
-                    fire(redTank, now);
+                    fire(redTank);
                     keyActive = true;
                 }
                 if(state == GameState.GREEN_BULLET_FIRED) {
-                    fire(greenTank, now);
+                    fire(greenTank);
                     keyActive = true;
                 }
 
-                view.render(); // rendering the scene
+                view.render();
                 movement(view.getScene()); // handling user key input on actual scene
             }
-        }.start(); // starting the timer
+        }.start();
     }
 
-    private void fire(Tank tank, long now) {
+    private void fire(Tank tank) {
         if(bulletWasFired) {
             inRadians = Math.toRadians(tank.getBarrelAngle());
             bullet.setPositionX(tank.getPositionX()+68 + Math.cos(inRadians)*70);
             bullet.setPositionY(tank.getPositionY()+12 + Math.sin(inRadians)*70);
-            bullet.setBulletAngle(inRadians);
 
             timer = System.currentTimeMillis();
             bulletWasFired = false;
         }
 
-        long tick;// = timer;
+        long tick;
 
         if(bullet.getPositionY() < 670 && bullet.getPositionY() > 0 && bullet.getPositionX() > 0 && bullet.getPositionX() < 1600) {
             tick = System.currentTimeMillis();
@@ -104,7 +100,6 @@ public class Controller {
         }
         else
         {
-            System.out.println("done!");
             if(state == GameState.GREEN_BULLET_FIRED) {
                 double xdiff = (bullet.getPositionX() - redTank.getPositionX()) * (bullet.getPositionX() - redTank.getPositionX());
                 double ydiff = (bullet.getPositionY() - redTank.getPositionY()) * (bullet.getPositionY() - redTank.getPositionY());
@@ -119,7 +114,6 @@ public class Controller {
                     state = GameState.FINISHED;
                 }
                 else {
-                    System.out.println("red power: " + redTank.getPower());
                     state = GameState.RED_PLAYER_TURN;
                 }
             }
@@ -138,7 +132,6 @@ public class Controller {
                     state = GameState.FINISHED;
                 }
                 else {
-                    System.out.println("green power: " + greenTank.getPower());
                     state = GameState.GREEN_PLAYER_TURN;
                 }
             }
@@ -149,7 +142,6 @@ public class Controller {
         if(dx != 0 || dy != 0) {
             tank.setPositionX(dx);
             tank.setBarrelMovement(dy);
-            System.out.println(tank.getBarrelMovement() + ", " + tank.getBarrelAngle());
         }
     }
 
@@ -223,8 +215,15 @@ public class Controller {
     private void restart() {
         dx = dy = 0;
         barrelUp = barrelDown = left = right = false;
-        redTank.setPower(100);
-        greenTank.setPower(100);
+
+        view.resetTankState();
+
+        redTank = view.getRedTank();
+        greenTank = view.getGreenTank();
+        System.out.println("restart + barrel: " + redTank.getBarrelAngle());
+        state = GameState.RED_PLAYER_TURN;
+
+        resume();
     }
 
     public static GameState getState() { return state; }

@@ -1,15 +1,13 @@
 package com.tankilla.model;
 
-public class Bullet implements Iposition{
+public class Bullet {
 
     private double positionX;
     private double positionY;
-    private double bulletAngle;
 
-    public Bullet(double positionX, double positionY, double bulletAngle) {
+    public Bullet(double positionX, double positionY) {
         this.positionX = positionX;
         this.positionY = positionY;
-        this.bulletAngle = bulletAngle;
     }
 
     public double getPositionX() {
@@ -28,11 +26,4 @@ public class Bullet implements Iposition{
         this.positionY = positionY;
     }
 
-    public double getBulletAngle() {
-        return bulletAngle;
-    }
-
-    public void setBulletAngle(double bulletAngle) {
-        this.bulletAngle = bulletAngle;
-    }
 }

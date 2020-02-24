@@ -76,6 +76,19 @@ public class MainView {
         render();
     }
 
+    public void resetTankState() {
+        board = new Board();
+        redTank = board.getRedTank();
+        greenTank = board.getGreenTank();
+
+        // here - reset position of barrels
+        redBarrelRotation.setAngle(redTank.getBarrelMovement());
+        redBarrelRotation.setPivotY(redBarrelImage.getHeight()/2);
+        redBarrelImageView.getTransforms().add(redBarrelRotation);
+
+
+    }
+
     public void render() {
         GameState state = Controller.getState();
 
@@ -111,11 +124,11 @@ public class MainView {
     }
 
     private void statistics() {
-        Text redTankPowerText = new Text(30, 50, Integer.toString(redTank.getPower()));
+        Text redTankPowerText = new Text(WIDTH * 0.05, 50, Integer.toString(redTank.getPower()));
         redTankPowerText.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.ITALIC, 36));
         redTankPowerText.setFill(Color.DARKRED);
 
-        Text greenTankPowerText = new Text(WIDTH - 120, 50, Integer.toString(greenTank.getPower()));
+        Text greenTankPowerText = new Text(WIDTH * 0.9, 50, Integer.toString(greenTank.getPower()));
         greenTankPowerText.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.ITALIC, 36));
         greenTankPowerText.setFill(Color.GREEN);
 
@@ -203,8 +216,6 @@ public class MainView {
     public Tank getRedTank() { return redTank; }
 
     public Tank getGreenTank() { return greenTank; }
-
-    public Board getBoard() { return board; }
 
     public Bullet getBullet() { return bullet; }
 }

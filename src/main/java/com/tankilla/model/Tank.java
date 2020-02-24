@@ -1,9 +1,6 @@
 package com.tankilla.model;
 
-public class Tank implements Iposition{
-
-    public static final int WIDTH = 155;
-    public static final int HEIGHT = 86;
+public class Tank {
 
     private int power;
     private double positionX;
