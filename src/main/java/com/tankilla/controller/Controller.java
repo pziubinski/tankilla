@@ -1,5 +1,6 @@
 package com.tankilla.controller;
 
+import com.tankilla.model.Board;
 import com.tankilla.model.Bullet;
 import com.tankilla.model.GameState;
 import com.tankilla.model.Tank;
@@ -9,9 +10,8 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class Controller {
-
     private static GameState state;
-    private boolean barrelUp, barrelDown, right, left, resume;
+    private boolean barrelUp, barrelDown, right, left;
     private static boolean bulletWasFired;
     private boolean keyActive;
     private int dx;
@@ -20,18 +20,20 @@ public class Controller {
     private long timer;
     private static String whoWins;
 
-    private Tank redTank;
-    private Tank greenTank;
+    private static Tank redTank;
+    private static Tank greenTank;
     private MainView view;
-    private Bullet bullet;
+    private static Bullet bullet;
+    private static Board board;
 
     public Controller() {
         state = GameState.STARTED;
-        view = new MainView();
-        redTank = view.getRedTank();
-        greenTank = view.getGreenTank();
-        bullet = view.getBullet();
+        board = new Board();
+        redTank = board.getRedTank();
+        greenTank = board.getGreenTank();
+        bullet = new Bullet(0, 0);
         keyActive = true;
+        view = new MainView();
 
         resume();
     }
@@ -187,6 +189,7 @@ public class Controller {
                     break;
                 case ENTER: { // start or restart the game
                     if(state == GameState.STARTED) {
+                        restart();
                         state = GameState.RED_PLAYER_TURN;
                     }
                     if(state == GameState.FINISHED) {
@@ -216,14 +219,12 @@ public class Controller {
         dx = dy = 0;
         barrelUp = barrelDown = left = right = false;
 
-        view.resetTankState();
+        board = new Board();
+        redTank = board.getRedTank();
+        greenTank = board.getGreenTank();
 
-        redTank = view.getRedTank();
-        greenTank = view.getGreenTank();
         System.out.println("restart + barrel: " + redTank.getBarrelAngle());
-        state = GameState.RED_PLAYER_TURN;
-
-        resume();
+        state = GameState.STARTED;
     }
 
     public static GameState getState() { return state; }
@@ -232,5 +233,15 @@ public class Controller {
 
     public static String getWinner() { return whoWins; }
 
+    public static Tank getRedTank() {
+        return redTank;
+    }
 
+    public static Tank getGreenTank() {
+        return greenTank;
+    }
+
+    public static Bullet getBullet() {
+        return bullet;
+    }
 }

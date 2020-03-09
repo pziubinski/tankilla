@@ -35,19 +35,12 @@ public class Tank {
         return positionY;
     }
 
-    public double getBarrelMovement() {
-        return barrelMovement;
-    }
-
     public void setBarrelMovement(double barrelMovement) {
         this.barrelMovement = barrelMovement;
         this.barrelAngle += barrelMovement;
     }
 
-    public double getBarrelAngle() { return barrelAngle; }
-
-    public void setBarrelAngle(double barrelAngle) {
-        this.barrelAngle = barrelAngle;
+    public double getBarrelAngle() {
+        return barrelAngle;
     }
-
 }

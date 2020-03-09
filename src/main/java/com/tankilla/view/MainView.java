@@ -43,23 +43,16 @@ public class MainView {
     private Rotate redBarrelRotation;
     private Rotate greenBarrelRotation;
 
-    private Tank redTank;
-    private Tank greenTank;
     private Scene scene;
     private Stage stage;
-    private Board board;
     private Group group;
     private Pane canvas;
     private GridPane grid;
     private StackPane stack;
-    private Bullet bullet;
 
     public MainView() {
-        board = new Board();
-        redTank = board.getRedTank();
-        greenTank = board.getGreenTank();
-
-        bullet = board.getBullet();
+        redBarrelRotation = new Rotate();
+        greenBarrelRotation = new Rotate();
 
         stage = new Stage();
         stage.setTitle("Tankilla");
@@ -74,19 +67,6 @@ public class MainView {
         scene = new Scene(group, WIDTH, HEIGHT );
 
         render();
-    }
-
-    public void resetTankState() {
-        board = new Board();
-        redTank = board.getRedTank();
-        greenTank = board.getGreenTank();
-
-        // here - reset position of barrels
-        redBarrelRotation.setAngle(redTank.getBarrelMovement());
-        redBarrelRotation.setPivotY(redBarrelImage.getHeight()/2);
-        redBarrelImageView.getTransforms().add(redBarrelRotation);
-
-
     }
 
     public void render() {
@@ -116,60 +96,52 @@ public class MainView {
         }
     }
 
-    private void whenRunning() {
-        setupAndBackground();
-        statistics();
+    private void whenBulletFired() {
+        setupAndBackgroundAndStatistics();
+
+        bulletImageView.relocate(Controller.getBullet().getPositionX(), Controller.getBullet().getPositionY());
+        canvas.getChildren().add(bulletImageView);
 
         tankAndGridAndSceneAndStageSetup();
     }
 
-    private void statistics() {
-        Text redTankPowerText = new Text(WIDTH * 0.05, 50, Integer.toString(redTank.getPower()));
+    private void whenRunning() {
+        setupAndBackgroundAndStatistics();
+        tankAndGridAndSceneAndStageSetup();
+    }
+
+    private void setupAndBackgroundAndStatistics() {
+        grid.getChildren().clear(); // clear grid
+        canvas.getChildren().clear(); // clear canvas
+        canvas.getChildren().add(backgroundImageView);
+
+        Text redTankPowerText = new Text(WIDTH * 0.05, 50, Integer.toString(Controller.getRedTank().getPower()));
         redTankPowerText.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.ITALIC, 36));
         redTankPowerText.setFill(Color.DARKRED);
 
-        Text greenTankPowerText = new Text(WIDTH * 0.9, 50, Integer.toString(greenTank.getPower()));
+        Text greenTankPowerText = new Text(WIDTH * 0.9, 50, Integer.toString(Controller.getGreenTank().getPower()));
         greenTankPowerText.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.ITALIC, 36));
         greenTankPowerText.setFill(Color.GREEN);
 
         canvas.getChildren().addAll(redTankPowerText, greenTankPowerText);
     }
 
-    private void whenBulletFired() {
-        setupAndBackground();
-        statistics();
-
-        bulletImageView.relocate(bullet.getPositionX(), bullet.getPositionY());
-        canvas.getChildren().add(bulletImageView);
-
-        tankAndGridAndSceneAndStageSetup();
-    }
-
-    private void setupAndBackground() {
-        grid.getChildren().clear(); // clear grid
-        canvas.getChildren().clear(); // clear canvas
-        canvas.getChildren().add(backgroundImageView);
-    }
-
     private void tankAndGridAndSceneAndStageSetup() {
-        redBarrelRotation = new Rotate();
-        greenBarrelRotation = new Rotate();
+        redTankImageView.relocate(Controller.getRedTank().getPositionX(), Controller.getRedTank().getPositionY());
 
-        redTankImageView.relocate(redTank.getPositionX(), redTank.getPositionY());
-        redBarrelImageView.relocate(redTank.getPositionX()+redBarrelImage.getWidth(), redTank.getPositionY()+10);
-
-        redBarrelRotation.setAngle(redTank.getBarrelMovement());
+        redBarrelRotation.setAngle(Controller.getRedTank().getBarrelAngle());
         redBarrelRotation.setPivotY(redBarrelImage.getHeight()/2);
-        redBarrelImageView.getTransforms().add(redBarrelRotation);
+        redBarrelImageView.getTransforms().setAll(redBarrelRotation);
+        redBarrelImageView.relocate(Controller.getRedTank().getPositionX()+redBarrelImage.getWidth(), Controller.getRedTank().getPositionY()+10);
 
         canvas.getChildren().addAll(redBarrelImageView, redTankImageView);
 
-        greenTankImageView.relocate(greenTank.getPositionX(), greenTank.getPositionY());
-        greenBarrelImageView.relocate(greenTank.getPositionX()+greenBarrelImage.getWidth(), greenTank.getPositionY()+10);
+        greenTankImageView.relocate(Controller.getGreenTank().getPositionX(), Controller.getGreenTank().getPositionY());
 
-        greenBarrelRotation.setAngle(greenTank.getBarrelMovement());
-        greenBarrelRotation.setPivotY(greenBarrelImage.getHeight()/2);
-        greenBarrelImageView.getTransforms().add(greenBarrelRotation);
+        greenBarrelRotation.setAngle(Controller.getGreenTank().getBarrelAngle()); //+- 1
+        greenBarrelRotation.setPivotY(greenBarrelImage.getHeight()/2); //5
+        greenBarrelImageView.getTransforms().setAll(greenBarrelRotation);
+        greenBarrelImageView.relocate(Controller.getGreenTank().getPositionX()+greenBarrelImage.getWidth(), Controller.getGreenTank().getPositionY()+10);
 
         canvas.getChildren().addAll(greenBarrelImageView, greenTankImageView);
 
@@ -212,10 +184,4 @@ public class MainView {
     public Scene getScene() { return stage.getScene(); }
 
     public Stage getStage() { return stage; }
-
-    public Tank getRedTank() { return redTank; }
-
-    public Tank getGreenTank() { return greenTank; }
-
-    public Bullet getBullet() { return bullet; }
 }
